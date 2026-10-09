@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}New Post – UC Lost & Found{% endblock %}
+{% block content %}
+<div class="form-container">
+  <h2>Create a New Post</h2>
+  <form method="POST">
+    <label>Type</label>
+    <select name="type" required>
+      <option value="lost">Lost</option>
+      <option value="found">Found</option>
+    </select>
+
+    <label>Title</label>
+    <input type="text" name="title" placeholder="e.g. Lost blue backpack" required>
+
+    <label>Description</label>
+    <textarea name="description" rows="4" placeholder="Describe the item..." required></textarea>
+
+    <label>Location</label>
+    <input type="text" name="location" placeholder="e.g. Baldwin Hall, Room 201">
+
+    <label>Contact Info</label>
+    <input type="text" name="contact" placeholder="e.g. email or phone">
+
+    <label>Date</label>
+    <input type="date" name="date" required>
+
+    <button type="submit" class="btn btn-primary">Submit Post</button>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}

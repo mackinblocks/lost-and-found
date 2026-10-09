@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="board-controls">
+  <form method="GET" action="/" class="search-bar">
+    <input type="text" name="q" placeholder="Search by title, description, or location…" value="{{ query }}"/>
+    <button type="submit" class="btn btn-secondary">Search</button>
+    {% if query %}<a href="/" class="btn btn-ghost">Clear</a>{% endif %}
+  </form>
+
+  <div class="filter-tabs">
+    <a href="/?type=all{% if query %}&q={{ query }}{% endif %}"
+       class="tab {% if filter_type == 'all' %}active{% endif %}">All</a>
+    <a href="/?type=lost{% if query %}&q={{ query }}{% endif %}"
+       class="tab lost {% if filter_type == 'lost' %}active{% endif %}">Lost</a>
+    <a href="/?type=found{% if query %}&q={{ query }}{% endif %}"
+       class="tab found {% if filter_type == 'found' %}active{% endif %}">Found</a>
+  </div>
+</section>
+
+<section class="board">
+  {% if posts %}
+    <div class="post-grid">
+      {% for post in posts %}
+      <a href="{{ url_for('view_post', post_id=post.id) }}" class="post-card {{ post.type }}">
+        <span class="badge {{ post.type }}">{{ post.type | upper }}</span>
+        <h2>{{ post.title }}</h2>
+        <p class="description">{{ post.description[:120] }}{% if post.description|length > 120 %}…{% endif %}</p>
+        <div class="meta">
+          <span>📍 {{ post.location }}</span>
+          <span>📅 {{ post.date }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <p>No posts found. <a href="{{ url_for('new_post') }}">Be the first to post!</a></p>
+    </div>
+  {% endif %}
+</section>
+
+{% endblock %}

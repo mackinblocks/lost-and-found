@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UC Lost & Found</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">🐾</span>
+        <div>
+          <h1>Bearcats Lost & Found</h1>
+          <p>University of Cincinnati Community Board</p>
+        </div>
+      </div>
+      <a href="{{ url_for('new_post') }}" class="btn btn-primary">+ New Post</a>
+    </div>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    <p>University of Cincinnati &mdash; Lost &amp; Found Message Board &mdash; For campus use only</p>
+  </footer>
+</body>
+</html>

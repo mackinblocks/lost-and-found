@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="post-detail">
+  <a href="{{ url_for('index') }}" class="back-link">← Back to Board</a>
+
+  <div class="detail-card {{ post.type }}">
+    <span class="badge {{ post.type }}">{{ post.type | upper }}</span>
+    <h2>{{ post.title }}</h2>
+
+    <div class="detail-body">
+      <p>{{ post.description }}</p>
+    </div>
+
+    <div class="detail-meta">
+      <div class="meta-item">
+        <span class="meta-label">📍 Location</span>
+        <span>{{ post.location }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">📅 Date</span>
+        <span>{{ post.date }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">✉️ Contact</span>
+        <span>{{ post.contact }}</span>
+      </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}"
+          onsubmit="return confirm('Delete this post?');" style="margin-top:1.5rem;">
+      <button type="submit" class="btn btn-danger">Delete Post</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
