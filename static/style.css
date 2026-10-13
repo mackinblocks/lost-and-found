@@ -224,3 +224,74 @@ main {
   .board-controls { flex-direction: column; }
   .filter-tabs { flex-wrap: wrap; }
 }
+
+/* ── Dark Mode ── */
+/* Theme is set on <html data-theme="light|dark"> by the script in base.html.
+   Defaults to the device's color-scheme setting; the header toggle saves a choice. */
+:root {
+  --input-bg: #ffffff;
+  --tab-bg: #ffffff;
+  --badge-lost-bg: #fde8eb;
+  --badge-found-bg: #e0f5ea;
+  color-scheme: light;
+}
+[data-theme="dark"] {
+  --uc-black: #0d0d0d;
+  --lost-color: #ff4d64;
+  --found-color: #34c47c;
+  --bg: #121212;
+  --card-bg: #1e1e1e;
+  --border: #383838;
+  --text: #e8e8e8;
+  --muted: #a3a3a3;
+  --shadow: 0 2px 8px rgba(0,0,0,0.5);
+  --input-bg: #2a2a2a;
+  --tab-bg: #1e1e1e;
+  --badge-lost-bg: rgba(255,77,100,0.16);
+  --badge-found-bg: rgba(52,196,124,0.16);
+  color-scheme: dark;
+}
+
+body, .post-card, .detail-card, .form-container, .tab {
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+/* Elements that used hard-coded light colors */
+.tab { background: var(--tab-bg); }
+.badge.lost { background: var(--badge-lost-bg); }
+.badge.found { background: var(--badge-found-bg); }
+.btn-ghost { color: var(--text); }
+input, textarea, select {
+  background: var(--input-bg);
+  color: var(--text);
+}
+input::placeholder, textarea::placeholder { color: var(--muted); }
+
+[data-theme="dark"] .tab.active { background: #3a3a3a; }
+[data-theme="dark"] .tab.lost.active { background: var(--lost-color); }
+[data-theme="dark"] .tab.found.active { background: var(--found-color); }
+[data-theme="dark"] .btn-secondary { background: #2e2e2e; border: 1px solid var(--border); }
+[data-theme="dark"] .post-card:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.6); }
+[data-theme="dark"] .btn-danger { background: #d9443a; }
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select { border-color: var(--border); }
+
+/* ── Theme Toggle ── */
+.header-actions { display: flex; align-items: center; gap: 0.75rem; }
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  border: 1.5px solid #444;
+  background: transparent;
+  color: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.theme-toggle:hover { background: rgba(255,255,255,0.1); transform: translateY(-1px); }
+.theme-toggle:focus-visible { outline: 2px solid var(--uc-red); outline-offset: 2px; }
