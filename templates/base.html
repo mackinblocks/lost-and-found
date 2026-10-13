@@ -4,6 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>UC Lost & Found</title>
+  <script>
+    // Apply the saved theme (or the device setting) before the page paints, so there is no flash.
+    (function () {
+      var theme;
+      try { theme = localStorage.getItem('theme'); } catch (e) {}
+      if (theme !== 'light' && theme !== 'dark') {
+        theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
 </head>
 <body>
@@ -16,7 +27,10 @@
           <p>University of Cincinnati Community Board</p>
         </div>
       </div>
-      <a href="{{ url_for('new_post') }}" class="btn btn-primary">+ New Post</a>
+      <div class="header-actions">
+        <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Switch to dark mode" title="Switch to dark mode">🌙</button>
+        <a href="{{ url_for('new_post') }}" class="btn btn-primary">+ New Post</a>
+      </div>
     </div>
   </header>
 
@@ -27,5 +41,29 @@
   <footer>
     <p>University of Cincinnati &mdash; Lost &amp; Found Message Board &mdash; For campus use only</p>
   </footer>
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var button = document.getElementById('theme-toggle');
+
+      function render() {
+        var dark = root.getAttribute('data-theme') === 'dark';
+        var label = dark ? 'Switch to light mode' : 'Switch to dark mode';
+        button.textContent = dark ? '☀️' : '🌙';
+        button.setAttribute('aria-label', label);
+        button.setAttribute('title', label);
+      }
+
+      button.addEventListener('click', function () {
+        var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) {}
+        render();
+      });
+
+      render();
+    })();
+  </script>
 </body>
 </html>
