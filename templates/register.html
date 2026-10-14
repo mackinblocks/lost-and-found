@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Register – UC Lost & Found{% endblock %}
+{% block content %}
+<div class="form-container">
+  <h2>Create an Account</h2>
+  <form method="POST" action="{{ url_for('register') }}">
+
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" placeholder="e.g. bearcatjoe" required />
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="yourname@mail.uc.edu" required />
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Choose a strong password" required />
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Create Account</button>
+    </div>
+
+    <p class="form-footer">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+  </form>
+</div>
+{% endblock %}
