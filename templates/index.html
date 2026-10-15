@@ -22,13 +22,20 @@
   {% if posts %}
     <div class="post-grid">
       {% for post in posts %}
-      <a href="{{ url_for('view_post', post_id=post.id) }}" class="post-card {{ post.type }}">
-        <span class="badge {{ post.type }}">{{ post.type | upper }}</span>
+      <a href="{{ url_for('view_post', post_id=post.id) }}" class="post-card {{ post.type }} {% if post.resolved %}resolved{% endif %}">
+        {% if post.image_filename %}
+          <img class="post-card-thumb" src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" alt="Item photo" />
+        {% endif %}
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+          <span class="badge {{ post.type }}">{{ post.type | upper }}</span>
+          {% if post.resolved %}<span class="badge resolved">RESOLVED</span>{% endif %}
+        </div>
         <h2>{{ post.title }}</h2>
         <p class="description">{{ post.description[:120] }}{% if post.description|length > 120 %}…{% endif %}</p>
         <div class="meta">
           <span>📍 {{ post.location }}</span>
           <span>📅 {{ post.date }}</span>
+          <span>👤 {{ post.author.username }}</span>
         </div>
       </a>
       {% endfor %}

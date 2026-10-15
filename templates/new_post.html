@@ -2,31 +2,56 @@
 {% block title %}New Post – UC Lost & Found{% endblock %}
 {% block content %}
 <div class="form-container">
-  <h2>Create a New Post</h2>
-  <form method="POST">
-    <label>Type</label>
-    <select name="type" required>
-      <option value="lost">Lost</option>
-      <option value="found">Found</option>
-    </select>
+  <h2>Submit a Lost &amp; Found Post</h2>
+  <form method="POST" action="{{ url_for('new_post') }}" enctype="multipart/form-data">
 
-    <label>Title</label>
-    <input type="text" name="title" placeholder="e.g. Lost blue backpack" required>
+    <div class="form-group">
+      <label>Post Type</label>
+      <div class="radio-group">
+        <label class="radio-label lost-label">
+          <input type="radio" name="type" value="lost" required /> Lost Item
+        </label>
+        <label class="radio-label found-label">
+          <input type="radio" name="type" value="found" /> Found Item
+        </label>
+      </div>
+    </div>
 
-    <label>Description</label>
-    <textarea name="description" rows="4" placeholder="Describe the item..." required></textarea>
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input type="text" id="title" name="title" placeholder="e.g. Lost: Blue Water Bottle" required />
+    </div>
 
-    <label>Location</label>
-    <input type="text" name="location" placeholder="e.g. Baldwin Hall, Room 201">
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" rows="4"
+        placeholder="Describe the item — color, brand, distinguishing features…" required></textarea>
+    </div>
 
-    <label>Contact Info</label>
-    <input type="text" name="contact" placeholder="e.g. email or phone">
+    <div class="form-group">
+      <label for="location">Location</label>
+      <input type="text" id="location" name="location" placeholder="e.g. Baldwin Hall Room 201" required />
+    </div>
 
-    <label>Date</label>
-    <input type="date" name="date" required>
+    <div class="form-group">
+      <label for="contact">Contact (email or phone)</label>
+      <input type="text" id="contact" name="contact" placeholder="e.g. yourname@mail.uc.edu" required />
+    </div>
 
-    <button type="submit" class="btn btn-primary">Submit Post</button>
-    <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+    <div class="form-group">
+      <label for="date">Date Lost / Found</label>
+      <input type="date" id="date" name="date" required />
+    </div>
+
+    <div class="form-group">
+      <label for="image">Photo (optional)</label>
+      <input type="file" id="image" name="image" accept="image/*" />
+    </div>
+
+    <div class="form-actions">
+      <a href="{{ url_for('index') }}" class="btn btn-ghost">Cancel</a>
+      <button type="submit" class="btn btn-primary">Submit Post</button>
+    </div>
   </form>
 </div>
 {% endblock %}

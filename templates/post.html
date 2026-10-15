@@ -1,12 +1,22 @@
 {% extends "base.html" %}
+{% block title %}{{ post.title }} – UC Lost & Found{% endblock %}
 {% block content %}
-
 <div class="post-detail">
   <a href="{{ url_for('index') }}" class="back-link">← Back to Board</a>
 
-  <div class="detail-card {{ post.type }}">
-    <span class="badge {{ post.type }}">{{ post.type | upper }}</span>
+  <div class="detail-card {{ post.type }} {% if post.resolved %}resolved{% endif %}">
+    <div class="badge-row">
+      <span class="badge {{ post.type }}">{{ post.type | upper }}</span>
+      {% if post.resolved %}<span class="badge resolved">RESOLVED</span>{% endif %}
+    </div>
+
     <h2>{{ post.title }}</h2>
+
+    {% if post.image_filename %}
+    <div class="post-image">
+      <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" alt="Item photo" />
+    </div>
+    {% endif %}
 
     <div class="detail-body">
       <p>{{ post.description }}</p>
@@ -25,13 +35,25 @@
         <span class="meta-label">✉️ Contact</span>
         <span>{{ post.contact }}</span>
       </div>
+      <div class="meta-item">
+        <span class="meta-label">👤 Posted by</span>
+        <span>{{ post.author.username }}</span>
+      </div>
     </div>
 
-    <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}"
-          onsubmit="return confirm('Delete this post?');" style="margin-top:1.5rem;">
-      <button type="submit" class="btn btn-danger">Delete Post</button>
-    </form>
+    {% if current_user() and current_user().id == post.user_id %}
+    <div class="post-actions">
+      <form method="POST" action="{{ url_for('resolve_post', post_id=post.id) }}" style="display:inline;">
+        <button type="submit" class="btn btn-secondary">
+          {% if post.resolved %}Mark as Unresolved{% else %}Mark as Resolved{% endif %}
+        </button>
+      </form>
+      <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}"
+            onsubmit="return confirm('Delete this post?');" style="display:inline;">
+        <button type="submit" class="btn btn-danger">Delete Post</button>
+      </form>
+    </div>
+    {% endif %}
   </div>
 </div>
-
 {% endblock %}

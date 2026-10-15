@@ -2,11 +2,19 @@
 
 A Flask-based message board for posting and finding lost items. Built with Python, Flask.
 
----
+
+install wsl by running
+````
+wsl --install
+````
+when done reboot computer then run docker install file default everything is fine.
+
 
 ## Quick Start
 
 ### Option 1 — Docker (Recommended, no Python needed)
+
+
 
 **Requirements:** [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
