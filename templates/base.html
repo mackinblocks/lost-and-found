@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>UC Lost & Found</title>
+  <title>{% block title %}UC Lost & Found{% endblock %}</title>
   <script>
     // Apply the saved theme (or the device setting) before the page paints, so there is no flash.
     (function () {
@@ -29,12 +29,30 @@
       </div>
       <div class="header-actions">
         <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Switch to dark mode" title="Switch to dark mode">🌙</button>
-        <a href="{{ url_for('new_post') }}" class="btn btn-primary">+ New Post</a>
+        <nav class="header-nav">
+          {% if current_user() %}
+            <span class="nav-user">👤 {{ current_user().username }}</span>
+            <a href="{{ url_for('new_post') }}" class="btn btn-primary">+ New Post</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-ghost">Log Out</a>
+          {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-ghost">Log In</a>
+            <a href="{{ url_for('register') }}" class="btn btn-primary">Register</a>
+          {% endif %}
+        </nav>
       </div>
     </div>
   </header>
 
   <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
     {% block content %}{% endblock %}
   </main>
 

@@ -3,3 +3,10 @@ services:
     build: .
     ports:
       - "5000:5000"
+    volumes:
+      - db_data:/app/instance
+      - uploads:/app/static/uploads
+
+volumes:
+  db_data:
+  uploads:
