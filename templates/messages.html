@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 {% from "_macros.html" import avatar %}
+{% from "_icons.html" import icon %}
 {% block title %}Messages – UC Lost & Found{% endblock %}
 {% block content %}
 {% set me = current_user() %}
 <div class="messages-page">
-  <h2 class="page-title">💬 Messages</h2>
-  <p class="page-subtitle">Private conversations. Only you and the other person can see them.</p>
+  <h1 class="page-title">Messages</h1>
+  <p class="page-subtitle">Only you and the other person can see a conversation.</p>
 
   {% if conversations %}
     <ul class="convo-list">
@@ -20,18 +21,20 @@
             </div>
             <p class="convo-preview">
               {% if convo.last.sender_id == me.id %}<span class="convo-you">You:</span>{% endif %}
-              {% if convo.last.image_filename %}📷 {% if not convo.last.body %}Photo{% endif %}{% endif %}
+              {% if convo.last.image_filename %}{{ icon("camera", 14) }}{% if not convo.last.body %} Photo{% endif %}{% endif %}
               {{ convo.last.body[:90] }}{% if convo.last.body|length > 90 %}…{% endif %}
             </p>
           </div>
-          {% if convo.unread %}<span class="unread-badge" aria-label="{{ convo.unread }} unread">{{ convo.unread }}</span>{% endif %}
+          {% if convo.unread %}<span class="unread-dot" aria-label="{{ convo.unread }} unread">{{ convo.unread }}</span>{% endif %}
         </a>
       </li>
       {% endfor %}
     </ul>
   {% else %}
     <div class="empty-state">
-      <p>No messages yet. Open a post on the <a href="{{ url_for('index') }}">board</a> and click <strong>Message</strong> to contact the person who posted it.</p>
+      {{ icon("message", 32) }}
+      <p>No messages yet. Open an item on the board and use <strong>Message</strong> to contact whoever posted it.</p>
+      <a href="{{ url_for('index') }}" class="btn btn-dark">Browse items</a>
     </div>
   {% endif %}
 </div>

@@ -1,76 +1,59 @@
 {% extends "base.html" %}
-{% from "_macros.html" import user_link %}
+{% from "_macros.html" import user_link, status_badge %}
+{% from "_icons.html" import icon %}
 {% block title %}{{ post.title }} – UC Lost & Found{% endblock %}
 {% block content %}
 {% set me = current_user() %}
-<div class="post-detail">
-  <a href="{{ url_for('index') }}" class="back-link">← Back to Board</a>
+<a href="{{ url_for('index') }}" class="back-link">{{ icon("arrow-left", 16) }}All items</a>
 
-  <div class="detail-card {{ post.type }} {% if post.resolved %}resolved{% endif %}">
-    <div class="badge-row">
-      <span class="badge {{ post.type }}">{{ post.type | upper }}</span>
-      {% if post.resolved %}<span class="badge resolved">RESOLVED</span>{% endif %}
-    </div>
-
-    <h2>{{ post.title }}</h2>
-
-    {% if post.author %}
-    <div class="posted-by">
-      Posted by {{ user_link(post.author) }}
-      <span class="posted-when">· {{ post.timestamp | timeago }}</span>
-    </div>
-    {% endif %}
-
+<article class="post-detail {% if post.resolved %}is-returned{% endif %}">
+  <div class="detail-media">
     {% if post.image_filename %}
-    <div class="post-image">
-      <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" alt="Item photo" />
-    </div>
-    {% endif %}
-
-    <div class="detail-body">
-      <p>{{ post.description }}</p>
-    </div>
-
-    <div class="detail-meta">
-      <div class="meta-item">
-        <span class="meta-label">📍 Location</span>
-        <span>{{ post.location }}</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">📅 Date</span>
-        <span>{{ post.date }}</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">✉️ Contact</span>
-        <span>{{ post.contact }}</span>
-      </div>
-    </div>
-
-    {% if me and me.id == post.user_id %}
-    <div class="post-actions">
-      <form method="POST" action="{{ url_for('resolve_post', post_id=post.id) }}" style="display:inline;">
-        <button type="submit" class="btn btn-secondary">
-          {% if post.resolved %}Mark as Unresolved{% else %}Mark as Resolved{% endif %}
-        </button>
-      </form>
-      <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}"
-            onsubmit="return confirm('Delete this post?');" style="display:inline;">
-        <button type="submit" class="btn btn-danger">Delete Post</button>
-      </form>
-    </div>
-    {% elif post.author %}
-    <div class="post-actions">
-      {% if me %}
-        <a href="{{ url_for('conversation', username=post.author.username, post=post.id) }}" class="btn btn-primary">
-          💬 Message {{ post.author.username }}
-        </a>
-      {% else %}
-        <a href="{{ url_for('login', next=url_for('conversation', username=post.author.username, post=post.id)) }}" class="btn btn-primary">
-          Log in to message {{ post.author.username }}
-        </a>
-      {% endif %}
-    </div>
+      <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" alt="Photo of {{ post.title }}" />
+    {% else %}
+      <div class="card-placeholder card-placeholder-{{ post.type }}">{{ icon("package", 56) }}<span>No photo</span></div>
     {% endif %}
   </div>
-</div>
+
+  <div class="detail-info">
+    {{ status_badge(post) }}
+    <h1 class="detail-title">{{ post.title }}</h1>
+    {% if post.author %}
+      <p class="posted-by">Posted by {{ user_link(post.author) }} <span class="posted-when">{{ post.timestamp | timeago }}</span></p>
+    {% endif %}
+
+    <p class="detail-body">{{ post.description }}</p>
+
+    <dl class="detail-facts">
+      <div><dt>{{ icon("pin", 16) }}Where</dt><dd>{{ post.location }}</dd></div>
+      <div><dt>{{ icon("calendar", 16) }}{{ "Lost on" if post.type == "lost" else "Found on" }}</dt><dd>{{ post.date | nice_date }}</dd></div>
+      {% if post.contact %}
+      <div><dt>{{ icon("mail", 16) }}Contact</dt><dd>{{ post.contact }}</dd></div>
+      {% endif %}
+    </dl>
+
+    <div class="post-actions">
+      {% if me and me.id == post.user_id %}
+        <form method="POST" action="{{ url_for('resolve_post', post_id=post.id) }}">
+          <button type="submit" class="btn btn-dark">
+            {% if post.resolved %}{{ icon("rotate", 16) }}Mark as not returned{% else %}{{ icon("check", 16) }}Mark as returned{% endif %}
+          </button>
+        </form>
+        <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}" onsubmit="return confirm('Delete this post?');">
+          <button type="submit" class="btn btn-danger-quiet">{{ icon("trash", 16) }}Delete post</button>
+        </form>
+      {% elif post.author %}
+        {% if me %}
+          <a href="{{ url_for('conversation', username=post.author.username, post=post.id) }}" class="btn btn-primary btn-lg">
+            {{ icon("message", 18) }}Message {{ post.author.username }}
+          </a>
+        {% else %}
+          <a href="{{ url_for('login', next=url_for('conversation', username=post.author.username, post=post.id)) }}" class="btn btn-primary btn-lg">
+            Log in to message {{ post.author.username }}
+          </a>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</article>
 {% endblock %}

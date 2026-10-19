@@ -202,6 +202,17 @@ def timeago(value):
     return value.strftime("%b %d").replace(" 0", " ")
 
 
+@app.template_filter("nice_date")
+def nice_date(value):
+    """Show the item's date as 'Oct 17' (or 'Oct 17, 2025' for other years)."""
+    try:
+        day = datetime.strptime(value, "%Y-%m-%d")
+    except (TypeError, ValueError):
+        return value
+    text = day.strftime("%b %d").replace(" 0", " ")
+    return text if day.year == datetime.utcnow().year else f"{text}, {day.year}"
+
+
 app.jinja_env.globals["current_user"] = current_user
 app.jinja_env.globals["avatar_color"] = avatar_color
 app.jinja_env.globals["unread_message_count"] = unread_message_count
@@ -304,7 +315,7 @@ def new_post():
             title=request.form["title"],
             description=request.form["description"],
             location=request.form["location"],
-            contact=request.form["contact"],
+            contact=request.form.get("contact", "").strip(),  # optional now that there's messaging
             date=request.form["date"],
             image_filename=image_filename,
             user_id=current_user().id,

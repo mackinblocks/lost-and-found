@@ -1,56 +1,57 @@
 {% extends "base.html" %}
-{% block title %}New Post – UC Lost & Found{% endblock %}
+{% block title %}Post an item – UC Lost & Found{% endblock %}
 {% block content %}
 <div class="form-container">
-  <h2>Submit a Lost &amp; Found Post</h2>
+  <h1 class="form-title">Post an item</h1>
+  <p class="form-intro">Other students can message you about it once it's posted.</p>
   <form method="POST" action="{{ url_for('new_post') }}" enctype="multipart/form-data">
 
-    <div class="form-group">
-      <label>Post Type</label>
-      <div class="radio-group">
-        <label class="radio-label lost-label">
-          <input type="radio" name="type" value="lost" required /> Lost Item
-        </label>
-        <label class="radio-label found-label">
-          <input type="radio" name="type" value="found" /> Found Item
-        </label>
+    <fieldset class="form-group">
+      <legend>Did you lose it or find it?</legend>
+      <div class="choice-toggle">
+        <input type="radio" id="type-lost" name="type" value="lost" required />
+        <label for="type-lost">I lost something</label>
+        <input type="radio" id="type-found" name="type" value="found" />
+        <label for="type-found">I found something</label>
       </div>
-    </div>
+    </fieldset>
 
     <div class="form-group">
-      <label for="title">Title</label>
-      <input type="text" id="title" name="title" placeholder="e.g. Lost: Blue Water Bottle" required />
+      <label for="title">What is it?</label>
+      <input type="text" id="title" name="title" placeholder="e.g. Blue Hydro Flask" maxlength="200" required />
     </div>
 
     <div class="form-group">
       <label for="description">Description</label>
       <textarea id="description" name="description" rows="4"
-        placeholder="Describe the item — color, brand, distinguishing features…" required></textarea>
+        placeholder="Color, brand, stickers, anything that helps identify it" required></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="location">Where?</label>
+        <input type="text" id="location" name="location" placeholder="e.g. Langsam Library, 2nd floor" required />
+      </div>
+      <div class="form-group">
+        <label for="date">When?</label>
+        <input type="date" id="date" name="date" required />
+      </div>
     </div>
 
     <div class="form-group">
-      <label for="location">Location</label>
-      <input type="text" id="location" name="location" placeholder="e.g. Baldwin Hall Room 201" required />
+      <label for="image">Photo <span class="optional">(optional, helps a lot)</span></label>
+      <input type="file" id="image" name="image" accept="image/png,image/jpeg,image/gif,image/webp" />
     </div>
 
     <div class="form-group">
-      <label for="contact">Contact (email or phone)</label>
-      <input type="text" id="contact" name="contact" placeholder="e.g. yourname@mail.uc.edu" required />
-    </div>
-
-    <div class="form-group">
-      <label for="date">Date Lost / Found</label>
-      <input type="date" id="date" name="date" required />
-    </div>
-
-    <div class="form-group">
-      <label for="image">Photo (optional)</label>
-      <input type="file" id="image" name="image" accept="image/*" />
+      <label for="contact">Email or phone <span class="optional">(optional)</span></label>
+      <input type="text" id="contact" name="contact" placeholder="Leave blank to use site messages only" />
+      <small class="field-hint">This is shown publicly on your post. Most people just use messages.</small>
     </div>
 
     <div class="form-actions">
-      <a href="{{ url_for('index') }}" class="btn btn-ghost">Cancel</a>
-      <button type="submit" class="btn btn-primary">Submit Post</button>
+      <a href="{{ url_for('index') }}" class="btn btn-quiet">Cancel</a>
+      <button type="submit" class="btn btn-primary">Post item</button>
     </div>
   </form>
 </div>

@@ -1,23 +1,36 @@
 {% extends "base.html" %}
 {% from "_macros.html" import post_card %}
+{% from "_icons.html" import icon %}
 {% block content %}
 
-<section class="board-controls">
-  <form method="GET" action="{{ url_for('index') }}" class="search-bar">
-    <input type="text" name="q" placeholder="Search by title, description, or location…" value="{{ query }}"/>
-    {% if filter_type in ('lost', 'found') %}<input type="hidden" name="type" value="{{ filter_type }}"/>{% endif %}
-    <button type="submit" class="btn btn-secondary">Search</button>
-    {% if query %}<a href="{{ url_for('index') }}" class="btn btn-ghost">Clear</a>{% endif %}
-  </form>
+<section class="board-intro">
+  <h1>Lost something on campus?</h1>
+  <p>Search items other Bearcats have found, or post what you lost so the finder can message you.</p>
 
-  <div class="filter-tabs">
+  <form method="GET" action="{{ url_for('index') }}" class="search-bar" role="search">
+    <span class="search-icon">{{ icon("search", 20) }}</span>
+    <label for="q" class="visually-hidden">Search items</label>
+    <input type="search" id="q" name="q" placeholder="Try “AirPods”, “keys” or “Langsam”" value="{{ query }}"/>
+    {% if filter_type in ('lost', 'found') %}<input type="hidden" name="type" value="{{ filter_type }}"/>{% endif %}
+    <button type="submit" class="btn btn-dark">Search</button>
+  </form>
+</section>
+
+<section class="board-toolbar">
+  <nav class="segmented" aria-label="Filter posts">
     <a href="{{ url_for('index', type='all', q=query or None) }}"
-       class="tab {% if filter_type not in ('lost', 'found') %}active{% endif %}">All</a>
+       class="{% if filter_type not in ('lost', 'found') %}active{% endif %}"
+       {% if filter_type not in ('lost', 'found') %}aria-current="page"{% endif %}>All items</a>
     <a href="{{ url_for('index', type='lost', q=query or None) }}"
-       class="tab lost {% if filter_type == 'lost' %}active{% endif %}">Lost</a>
+       class="{% if filter_type == 'lost' %}active{% endif %}"
+       {% if filter_type == 'lost' %}aria-current="page"{% endif %}>Lost</a>
     <a href="{{ url_for('index', type='found', q=query or None) }}"
-       class="tab found {% if filter_type == 'found' %}active{% endif %}">Found</a>
-  </div>
+       class="{% if filter_type == 'found' %}active{% endif %}"
+       {% if filter_type == 'found' %}aria-current="page"{% endif %}>Found</a>
+  </nav>
+  <p class="result-count">
+    {{ posts | length }} item{{ "" if posts | length == 1 else "s" }}{% if query %} matching “{{ query }}” <a href="{{ url_for('index', type=filter_type if filter_type in ('lost', 'found') else None) }}">Clear search</a>{% endif %}
+  </p>
 </section>
 
 <section class="board">
@@ -29,7 +42,9 @@
     </div>
   {% else %}
     <div class="empty-state">
-      <p>No posts found. <a href="{{ url_for('new_post') }}">Be the first to post!</a></p>
+      {{ icon("search", 32) }}
+      <p>{% if query %}Nothing matches “{{ query }}” yet.{% else %}No items posted yet.{% endif %}</p>
+      <a href="{{ url_for('new_post') }}" class="btn btn-primary">Post an item</a>
     </div>
   {% endif %}
 </section>

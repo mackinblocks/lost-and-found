@@ -1,32 +1,33 @@
 {% extends "base.html" %}
 {% from "_macros.html" import avatar, post_card %}
+{% from "_icons.html" import icon %}
 {% block title %}{{ user.username }} – UC Lost & Found{% endblock %}
 {% block content %}
 {% set me = current_user() %}
 <section class="profile-card">
   {{ avatar(user, "lg") }}
   <div class="profile-info">
-    <h2>
+    <h1>
       {{ user.username }}
-      {% if me and me.id == user.id %}<span class="you-tag">you</span>{% endif %}
-    </h2>
+      {% if me and me.id == user.id %}<span class="you-tag">You</span>{% endif %}
+    </h1>
     <p class="profile-meta">
-      Member since {{ user.created_at.strftime("%B %Y") if user.created_at else "—" }}
-      · {{ posts | length }} post{{ "" if posts | length == 1 else "s" }}
+      Member since {{ user.created_at.strftime("%B %Y") if user.created_at else "recently" }},
+      {{ posts | length }} post{{ "" if posts | length == 1 else "s" }}
     </p>
   </div>
   <div class="profile-actions">
     {% if me and me.id == user.id %}
-      <a href="{{ url_for('inbox') }}" class="btn btn-secondary">💬 My Messages</a>
+      <a href="{{ url_for('inbox') }}" class="btn btn-dark">{{ icon("message", 18) }}Your messages</a>
     {% elif me %}
-      <a href="{{ url_for('conversation', username=user.username) }}" class="btn btn-primary">💬 Message {{ user.username }}</a>
+      <a href="{{ url_for('conversation', username=user.username) }}" class="btn btn-primary">{{ icon("message", 18) }}Message {{ user.username }}</a>
     {% else %}
       <a href="{{ url_for('login', next=url_for('conversation', username=user.username)) }}" class="btn btn-primary">Log in to message</a>
     {% endif %}
   </div>
 </section>
 
-<h3 class="section-title">{% if me and me.id == user.id %}Your posts{% else %}Posts by {{ user.username }}{% endif %}</h3>
+<h2 class="section-title">{% if me and me.id == user.id %}Your posts{% else %}Posts by {{ user.username }}{% endif %}</h2>
 {% if posts %}
   <div class="post-grid">
     {% for post in posts %}
@@ -34,6 +35,9 @@
     {% endfor %}
   </div>
 {% else %}
-  <div class="empty-state"><p>No posts yet.</p></div>
+  <div class="empty-state">
+    {{ icon("package", 32) }}
+    <p>No posts yet.</p>
+  </div>
 {% endif %}
 {% endblock %}
