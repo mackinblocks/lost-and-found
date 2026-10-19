@@ -39,12 +39,10 @@ header {
   justify-content: space-between;
   gap: 1rem;
 }
-.logo { display: flex; align-items: center; gap: 0.75rem; }
+.logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: inherit; }
 .logo-icon { font-size: 2rem; }
 .logo h1 { font-size: 1.4rem; font-weight: 700; color: white; }
 .logo p  { font-size: 0.8rem; color: #aaa; }
-.header-nav { display: flex; align-items: center; gap: 0.75rem; }
-.nav-user { color: #ccc; font-size: 0.9rem; }
 
 /* ── Footer ── */
 footer {
@@ -253,6 +251,7 @@ main {
 /* ── Resolved ── */
 .badge.resolved { background: #e8f4fd; color: #0c5460; }
 .badge-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+.post-card .badge-row { margin-bottom: 0; gap: 0.4rem; }
 .detail-card.resolved { opacity: 0.75; }
 
 /* ── Post Actions ── */
@@ -340,3 +339,232 @@ input::placeholder, textarea::placeholder { color: var(--muted); }
 }
 .theme-toggle:hover { background: rgba(255,255,255,0.1); transform: translateY(-1px); }
 .theme-toggle:focus-visible { outline: 2px solid var(--uc-red); outline-offset: 2px; }
+
+/* ── Header Account Area ── */
+/* The header is dark in both themes, so its ghost buttons always use white text. */
+header .btn-ghost { color: white; }
+.header-actions { flex-wrap: wrap; justify-content: flex-end; }
+.nav-messages { display: inline-flex; align-items: center; gap: 0.4rem; }
+.nav-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.25rem 0.8rem 0.25rem 0.3rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(255,255,255,0.18);
+  color: white;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.nav-user:hover { background: rgba(255,255,255,0.16); }
+.nav-user-text { display: flex; flex-direction: column; line-height: 1.15; }
+.nav-user-label { font-size: 0.68rem; color: #bbb; text-transform: uppercase; letter-spacing: 0.04em; }
+.nav-user-name { font-size: 0.92rem; font-weight: 700; }
+
+.unread-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: var(--uc-red);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* ── Avatars & Usernames ── */
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--avatar-bg, var(--uc-black));
+  color: white;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 0 0 2px var(--card-bg);
+}
+.avatar-sm { width: 1.6rem; height: 1.6rem; font-size: 0.8rem; }
+.avatar-md { width: 2.2rem; height: 2.2rem; font-size: 1rem; }
+.avatar-lg { width: 4.5rem; height: 4.5rem; font-size: 2rem; }
+header .avatar { box-shadow: none; }
+
+.user-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  vertical-align: middle;
+}
+.user-link:hover .user-name { text-decoration: underline; }
+.user-name { font-weight: 600; }
+.you-tag {
+  display: inline-block;
+  margin-left: 0.3rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+.card-author {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.posted-by { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem; color: var(--muted); font-size: 0.9rem; margin-bottom: 0.5rem; }
+.posted-when { color: var(--muted); }
+
+/* ── Profile ── */
+.profile-card {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.profile-info { flex: 1; min-width: 180px; }
+.profile-info h2 { font-size: 1.5rem; }
+.profile-meta { color: var(--muted); font-size: 0.9rem; margin-top: 0.25rem; }
+.section-title { font-size: 1.1rem; margin-bottom: 1rem; }
+
+/* ── Messages ── */
+.messages-page { max-width: 720px; margin: 0 auto; }
+.page-title { font-size: 1.4rem; }
+.page-subtitle { color: var(--muted); font-size: 0.9rem; margin: 0.25rem 0 1.25rem; }
+.convo-list { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+.convo-item {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem 1rem;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  text-decoration: none;
+  border-left: 4px solid transparent;
+  transition: transform 0.15s;
+}
+.convo-item:hover { transform: translateY(-2px); }
+.convo-item.unread { border-left-color: var(--uc-red); }
+.convo-item.unread .convo-preview { color: var(--text); font-weight: 600; }
+.convo-text { flex: 1; min-width: 0; }
+.convo-top { display: flex; justify-content: space-between; gap: 0.5rem; }
+.convo-time { color: var(--muted); font-size: 0.78rem; white-space: nowrap; }
+.convo-preview { color: var(--muted); font-size: 0.88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.convo-you { font-weight: 600; }
+
+.chat-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.chat-header { padding: 0.9rem 1.1rem; border-bottom: 1px solid var(--border); }
+.chat-about {
+  padding: 0.6rem 1.1rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+.chat-about a { color: var(--text); font-weight: 600; text-decoration: none; }
+.chat-about a:hover { text-decoration: underline; }
+.chat-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1.1rem;
+  max-height: 55vh;
+  min-height: 200px;
+  overflow-y: auto;
+  background: var(--bg);
+}
+.chat-empty { color: var(--muted); text-align: center; margin: auto; }
+.bubble-row { display: flex; align-items: flex-end; gap: 0.5rem; max-width: 80%; }
+.bubble-row.mine { align-self: flex-end; flex-direction: row-reverse; }
+.bubble {
+  padding: 0.6rem 0.85rem;
+  border-radius: 14px 14px 14px 4px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.bubble-row.mine .bubble {
+  border-radius: 14px 14px 4px 14px;
+  background: var(--uc-red);
+  border-color: var(--uc-red);
+  color: white;
+}
+.bubble-body { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.92rem; line-height: 1.45; }
+.bubble-time { display: block; margin-top: 0.25rem; font-size: 0.7rem; opacity: 0.75; }
+.bubble-ref {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: inherit;
+  opacity: 0.85;
+}
+.chat-form { display: flex; gap: 0.6rem; padding: 0.9rem 1.1rem; border-top: 1px solid var(--border); align-items: flex-end; }
+.chat-form textarea {
+  flex: 1;
+  resize: vertical;
+  padding: 0.6rem 0.85rem;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.92rem;
+}
+.chat-form textarea:focus { outline: none; border-color: var(--uc-red); }
+.chat-hint { padding: 0 1.1rem 0.9rem; color: var(--muted); font-size: 0.78rem; }
+
+.field-hint { color: var(--muted); font-size: 0.8rem; }
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+/* Flash messages readable in dark mode */
+[data-theme="dark"] .flash-success { background: rgba(52,196,124,0.16); color: #7ee2ad; }
+[data-theme="dark"] .flash-danger  { background: rgba(255,77,100,0.16); color: #ff9aa8; }
+[data-theme="dark"] .flash-warning { background: rgba(255,193,7,0.14); color: #ffd966; }
+[data-theme="dark"] .flash-info    { background: rgba(77,171,247,0.14); color: #9fd2ff; }
+[data-theme="dark"] .badge.resolved { background: rgba(77,171,247,0.16); color: #9fd2ff; }
+
+/* UC red is too dark to read as text on the dark background, so links use a lighter red there. */
+[data-theme="dark"] .back-link,
+[data-theme="dark"] .empty-state a,
+[data-theme="dark"] .form-footer a { color: #ff6b7f; }
+
+@media (max-width: 600px) {
+  header { padding: 0.85rem 1rem; }
+  .header-inner { gap: 0.75rem; }
+  .logo-icon { font-size: 1.6rem; }
+  .logo h1 { font-size: 1.15rem; }
+  .header-actions { justify-content: flex-start; gap: 0.5rem; }
+  header .btn { padding: 0.45rem 0.75rem; font-size: 0.85rem; }
+  .nav-messages .nav-label { display: none; }
+  .nav-user-label { display: none; }
+  .nav-user { padding: 0.2rem 0.7rem 0.2rem 0.2rem; }
+  .theme-toggle { width: 2.1rem; height: 2.1rem; }
+  .bubble-row { max-width: 92%; }
+}

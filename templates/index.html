@@ -1,19 +1,21 @@
 {% extends "base.html" %}
+{% from "_macros.html" import post_card %}
 {% block content %}
 
 <section class="board-controls">
-  <form method="GET" action="/" class="search-bar">
+  <form method="GET" action="{{ url_for('index') }}" class="search-bar">
     <input type="text" name="q" placeholder="Search by title, description, or location…" value="{{ query }}"/>
+    {% if filter_type in ('lost', 'found') %}<input type="hidden" name="type" value="{{ filter_type }}"/>{% endif %}
     <button type="submit" class="btn btn-secondary">Search</button>
-    {% if query %}<a href="/" class="btn btn-ghost">Clear</a>{% endif %}
+    {% if query %}<a href="{{ url_for('index') }}" class="btn btn-ghost">Clear</a>{% endif %}
   </form>
 
   <div class="filter-tabs">
-    <a href="/?type=all{% if query %}&q={{ query }}{% endif %}"
-       class="tab {% if filter_type == 'all' %}active{% endif %}">All</a>
-    <a href="/?type=lost{% if query %}&q={{ query }}{% endif %}"
+    <a href="{{ url_for('index', type='all', q=query or None) }}"
+       class="tab {% if filter_type not in ('lost', 'found') %}active{% endif %}">All</a>
+    <a href="{{ url_for('index', type='lost', q=query or None) }}"
        class="tab lost {% if filter_type == 'lost' %}active{% endif %}">Lost</a>
-    <a href="/?type=found{% if query %}&q={{ query }}{% endif %}"
+    <a href="{{ url_for('index', type='found', q=query or None) }}"
        class="tab found {% if filter_type == 'found' %}active{% endif %}">Found</a>
   </div>
 </section>
@@ -22,22 +24,7 @@
   {% if posts %}
     <div class="post-grid">
       {% for post in posts %}
-      <a href="{{ url_for('view_post', post_id=post.id) }}" class="post-card {{ post.type }} {% if post.resolved %}resolved{% endif %}">
-        {% if post.image_filename %}
-          <img class="post-card-thumb" src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" alt="Item photo" />
-        {% endif %}
-        <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-          <span class="badge {{ post.type }}">{{ post.type | upper }}</span>
-          {% if post.resolved %}<span class="badge resolved">RESOLVED</span>{% endif %}
-        </div>
-        <h2>{{ post.title }}</h2>
-        <p class="description">{{ post.description[:120] }}{% if post.description|length > 120 %}…{% endif %}</p>
-        <div class="meta">
-          <span>📍 {{ post.location }}</span>
-          <span>📅 {{ post.date }}</span>
-          <span>👤 {{ post.author.username }}</span>
-        </div>
-      </a>
+        {{ post_card(post) }}
       {% endfor %}
     </div>
   {% else %}

@@ -1,0 +1,41 @@
+{# Reusable pieces. Import them with:  {% from "_macros.html" import avatar, user_link, post_card %} #}
+
+{# A colored circle with the user's first letter. Each username always gets the same color. #}
+{% macro avatar(user, size="sm") -%}
+  <span class="avatar avatar-{{ size }}" style="--avatar-bg: {{ avatar_color(user.username) }};" aria-hidden="true">{{ user.username[:1] | upper }}</span>
+{%- endmacro %}
+
+{# Avatar + username, linking to that user's profile page. #}
+{% macro user_link(user, size="sm") -%}
+  <a class="user-link" href="{{ url_for('profile', username=user.username) }}">
+    {{- avatar(user, size) -}}
+    <span class="user-name">{{ user.username }}</span>
+    {%- if current_user() and current_user().id == user.id %}<span class="you-tag">you</span>{% endif -%}
+  </a>
+{%- endmacro %}
+
+{# One card on the board. The whole card is a link, so the username here is plain text. #}
+{% macro post_card(post) -%}
+  <a href="{{ url_for('view_post', post_id=post.id) }}" class="post-card {{ post.type }} {% if post.resolved %}resolved{% endif %}">
+    {% if post.image_filename %}
+      <img class="post-card-thumb" src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" alt="Item photo" />
+    {% endif %}
+    <div class="badge-row">
+      <span class="badge {{ post.type }}">{{ post.type | upper }}</span>
+      {% if post.resolved %}<span class="badge resolved">RESOLVED</span>{% endif %}
+    </div>
+    <h2>{{ post.title }}</h2>
+    <p class="description">{{ post.description[:120] }}{% if post.description|length > 120 %}…{% endif %}</p>
+    <div class="meta">
+      <span>📍 {{ post.location }}</span>
+      <span>📅 {{ post.date }}</span>
+    </div>
+    {% if post.author %}
+    <div class="card-author">
+      {{ avatar(post.author) }}
+      <span class="user-name">{{ post.author.username }}</span>
+      {% if current_user() and current_user().id == post.author.id %}<span class="you-tag">you</span>{% endif %}
+    </div>
+    {% endif %}
+  </a>
+{%- endmacro %}

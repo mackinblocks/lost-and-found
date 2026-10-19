@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_macros.html" import avatar %}
+{% block title %}Messages – UC Lost & Found{% endblock %}
+{% block content %}
+{% set me = current_user() %}
+<div class="messages-page">
+  <h2 class="page-title">💬 Messages</h2>
+  <p class="page-subtitle">Private conversations. Only you and the other person can see them.</p>
+
+  {% if conversations %}
+    <ul class="convo-list">
+      {% for convo in conversations %}
+      <li>
+        <a href="{{ url_for('conversation', username=convo.other.username) }}" class="convo-item {% if convo.unread %}unread{% endif %}">
+          {{ avatar(convo.other, "md") }}
+          <div class="convo-text">
+            <div class="convo-top">
+              <span class="user-name">{{ convo.other.username }}</span>
+              <span class="convo-time">{{ convo.last.timestamp | timeago }}</span>
+            </div>
+            <p class="convo-preview">
+              {% if convo.last.sender_id == me.id %}<span class="convo-you">You:</span>{% endif %}
+              {{ convo.last.body[:90] }}{% if convo.last.body|length > 90 %}…{% endif %}
+            </p>
+          </div>
+          {% if convo.unread %}<span class="unread-badge" aria-label="{{ convo.unread }} unread">{{ convo.unread }}</span>{% endif %}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="empty-state">
+      <p>No messages yet. Open a post on the <a href="{{ url_for('index') }}">board</a> and click <strong>Message</strong> to contact the person who posted it.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

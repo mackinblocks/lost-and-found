@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>UC Lost & Found</title>
+  <title>{% block title %}UC Lost & Found{% endblock %}</title>
   <script>
     // Apply the saved theme (or the device setting) before the page paints, so there is no flash.
     (function () {
@@ -18,19 +18,39 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
 </head>
 <body>
+  {% from "_macros.html" import avatar %}
+  {% set me = current_user() %}
   <header>
     <div class="header-inner">
-      <div class="logo">
+      <a class="logo" href="{{ url_for('index') }}">
         <span class="logo-icon">🐾</span>
         <div>
           <h1>Bearcats Lost & Found</h1>
           <p>University of Cincinnati Community Board</p>
         </div>
-      </div>
-      <div class="header-actions">
+      </a>
+      <nav class="header-actions" aria-label="Account">
         <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Switch to dark mode" title="Switch to dark mode">🌙</button>
-        <a href="{{ url_for('new_post') }}" class="btn btn-primary">+ New Post</a>
-      </div>
+        {% if me %}
+          {% set unread = unread_message_count() %}
+          <a href="{{ url_for('inbox') }}" class="btn btn-ghost nav-messages" aria-label="Messages{% if unread %}, {{ unread }} unread{% endif %}">
+            <span aria-hidden="true">💬</span><span class="nav-label">Messages</span>
+            {% if unread %}<span class="unread-badge" aria-label="{{ unread }} unread">{{ unread }}</span>{% endif %}
+          </a>
+          <a href="{{ url_for('new_post') }}" class="btn btn-primary">+ New Post</a>
+          <a href="{{ url_for('profile', username=me.username) }}" class="nav-user" title="Signed in as {{ me.username }}">
+            {{ avatar(me, "md") }}
+            <span class="nav-user-text">
+              <span class="nav-user-label">Signed in as</span>
+              <span class="nav-user-name">{{ me.username }}</span>
+            </span>
+          </a>
+          <a href="{{ url_for('logout') }}" class="btn btn-ghost">Log Out</a>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="btn btn-ghost">Log In</a>
+          <a href="{{ url_for('register') }}" class="btn btn-primary">Sign Up</a>
+        {% endif %}
+      </nav>
     </div>
   </header>
 

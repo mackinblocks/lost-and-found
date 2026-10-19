@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% from "_macros.html" import avatar, user_link %}
+{% block title %}Chat with {{ other.username }} – UC Lost & Found{% endblock %}
+{% block content %}
+{% set me = current_user() %}
+<div class="messages-page">
+  <a href="{{ url_for('inbox') }}" class="back-link">← All messages</a>
+
+  <div class="chat-card">
+    <div class="chat-header">
+      {{ user_link(other, "md") }}
+    </div>
+
+    {% if about_post %}
+    <div class="chat-about">
+      About: <a href="{{ url_for('view_post', post_id=about_post.id) }}">
+        <span class="badge {{ about_post.type }}">{{ about_post.type | upper }}</span> {{ about_post.title }}
+      </a>
+    </div>
+    {% endif %}
+
+    <div class="chat-thread" id="chat-thread">
+      {% for message in thread %}
+        {% set mine = message.sender_id == me.id %}
+        <div class="bubble-row {% if mine %}mine{% endif %}">
+          {% if not mine %}{{ avatar(other) }}{% endif %}
+          <div class="bubble">
+            {% if message.post %}
+              <a class="bubble-ref" href="{{ url_for('view_post', post_id=message.post.id) }}">Re: {{ message.post.title }}</a>
+            {% endif %}
+            <p class="bubble-body">{{ message.body }}</p>
+            <span class="bubble-time">{{ message.timestamp | timeago }}</span>
+          </div>
+        </div>
+      {% else %}
+        <p class="chat-empty">No messages yet. Say hi to {{ other.username }}!</p>
+      {% endfor %}
+    </div>
+
+    <form method="POST" action="{{ url_for('conversation', username=other.username) }}" class="chat-form">
+      {% if about_post %}<input type="hidden" name="post_id" value="{{ about_post.id }}"/>{% endif %}
+      <label for="body" class="visually-hidden">Message to {{ other.username }}</label>
+      <textarea id="body" name="body" rows="2" maxlength="{{ max_length }}" required
+        placeholder="{% if about_post %}Ask about “{{ about_post.title }}”…{% else %}Write a message…{% endif %}"></textarea>
+      <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+    <p class="chat-hint">Tip: meet in a public campus spot (like TUC) to hand items back. Press Ctrl+Enter to send.</p>
+  </div>
+</div>
+
+<script>
+  // Start the conversation scrolled to the newest message.
+  (function () {
+    var thread = document.getElementById('chat-thread');
+    if (thread) thread.scrollTop = thread.scrollHeight;
+    var box = document.getElementById('body');
+    if (box) {
+      box.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && box.value.trim()) {
+          box.form.submit();
+        }
+      });
+    }
+  })();
+</script>
+{% endblock %}
