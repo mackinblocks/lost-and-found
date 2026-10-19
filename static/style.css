@@ -524,7 +524,8 @@ header .avatar { box-shadow: none; }
   color: inherit;
   opacity: 0.85;
 }
-.chat-form { display: flex; gap: 0.6rem; padding: 0.9rem 1.1rem; border-top: 1px solid var(--border); align-items: flex-end; }
+.chat-form { display: flex; flex-direction: column; gap: 0.6rem; padding: 0.9rem 1.1rem; border-top: 1px solid var(--border); }
+.chat-input-row { display: flex; gap: 0.6rem; align-items: flex-end; }
 .chat-form textarea {
   flex: 1;
   resize: vertical;
@@ -535,7 +536,56 @@ header .avatar { box-shadow: none; }
   font-size: 0.92rem;
 }
 .chat-form textarea:focus { outline: none; border-color: var(--uc-red); }
-.chat-hint { padding: 0 1.1rem 0.9rem; color: var(--muted); font-size: 0.78rem; }
+.chat-hint { padding: 0 1.1rem 0.9rem; color: var(--muted); font-size: 0.78rem; line-height: 1.45; }
+
+/* ── Photos in Messages ── */
+.photo-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--input-bg);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.photo-button:hover { border-color: var(--uc-red); }
+.photo-button:focus-within { outline: 2px solid var(--uc-red); outline-offset: 2px; }
+.photo-button input[type="file"] {
+  position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden;
+}
+.photo-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+.photo-preview[hidden] { display: none; }
+.photo-preview img { width: 3.2rem; height: 3.2rem; object-fit: cover; border-radius: 6px; }
+.photo-preview-name { flex: 1; min-width: 0; font-size: 0.85rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.photo-remove {
+  width: 2rem; height: 2rem;
+  border: none; border-radius: 50%;
+  background: transparent; color: var(--muted);
+  font-size: 1rem; cursor: pointer;
+}
+.photo-remove:hover { background: var(--border); color: var(--text); }
+.bubble-image-link { display: block; margin-bottom: 0.35rem; }
+.bubble-image {
+  display: block;
+  max-width: 100%;
+  width: 260px;
+  max-height: 260px;
+  object-fit: cover;
+  border-radius: 10px;
+}
 
 .field-hint { color: var(--muted); font-size: 0.8rem; }
 .visually-hidden {

@@ -1,7 +1,10 @@
 import hashlib
 import os
 import re
-from flask import Flask, render_template, request, redirect, url_for, flash, session, g
+import uuid
+from urllib.parse import urlparse
+from flask import (Flask, render_template, request, redirect, url_for, flash, session, g,
+                   send_from_directory, abort)
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -24,6 +27,14 @@ UPLOAD_FOLDER = os.path.join("static", "uploads")
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Biggest upload we accept (post photos and message photos).
+MAX_UPLOAD_MB = 16
+app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_MB * 1024 * 1024
+
+# Photos sent in messages are private, so they are NOT kept in static/ (anyone could open those).
+# They live in the instance folder and are only served to the two people in the conversation.
+MESSAGE_UPLOAD_FOLDER = os.path.join(app.instance_path, "message_uploads")
+os.makedirs(MESSAGE_UPLOAD_FOLDER, exist_ok=True)
 
 # --- Usernames & Messages ---
 # 3-30 characters: letters, numbers, underscore, dot or dash (no spaces, so names work in links).
@@ -69,7 +80,8 @@ class Message(db.Model):
     sender_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     recipient_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"), nullable=True)
-    body = db.Column(db.Text, nullable=False)
+    body = db.Column(db.Text, nullable=False, default="")
+    image_filename = db.Column(db.String(300), nullable=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     read = db.Column(db.Boolean, default=False)
 
@@ -81,6 +93,34 @@ class Message(db.Model):
 # --- Helpers ---
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+# The first bytes of real PNG, JPG and GIF files (WEBP is checked separately).
+IMAGE_SIGNATURES = (b"\x89PNG\r\n\x1a\n", b"\xff\xd8\xff", b"GIF87a", b"GIF89a")
+
+
+def is_real_image(file):
+    """Check the file's contents, not just its name, so a renamed .exe can't sneak through."""
+    head = file.stream.read(12)
+    file.stream.seek(0)
+    return head.startswith(IMAGE_SIGNATURES) or (head[:4] == b"RIFF" and head[8:12] == b"WEBP")
+
+
+def save_message_image(file):
+    """Save a message photo under a random, unguessable name and return that name."""
+    extension = file.filename.rsplit(".", 1)[1].lower()
+    filename = f"{uuid.uuid4().hex}.{extension}"
+    file.save(os.path.join(MESSAGE_UPLOAD_FOLDER, filename))
+    return filename
+
+
+def upgrade_database():
+    """Create missing tables, and add columns that newer versions of the app need."""
+    db.create_all()
+    message_columns = {column["name"] for column in db.inspect(db.engine).get_columns("message")}
+    if "image_filename" not in message_columns:
+        with db.engine.begin() as connection:
+            connection.execute(db.text("ALTER TABLE message ADD COLUMN image_filename VARCHAR(300)"))
 
 
 def current_user():
@@ -351,8 +391,14 @@ def conversation(username):
         body = request.form.get("body", "").strip()
         post_id = request.form.get("post_id", type=int)
         post = db.session.get(Post, post_id) if post_id else None
-        if not body:
-            flash("Type a message before sending.", "warning")
+        photo = request.files.get("image")
+        has_photo = bool(photo and photo.filename)
+
+        sent = False
+        if has_photo and not (allowed_file(photo.filename) and is_real_image(photo)):
+            flash("Photos must be PNG, JPG, GIF or WEBP images.", "danger")
+        elif not body and not has_photo:
+            flash("Type a message or add a photo before sending.", "warning")
         elif len(body) > MAX_MESSAGE_LENGTH:
             flash(f"Messages can be at most {MAX_MESSAGE_LENGTH} characters.", "danger")
         else:
@@ -361,9 +407,13 @@ def conversation(username):
                 recipient_id=other.id,
                 post_id=post.id if post else None,
                 body=body,
+                image_filename=save_message_image(photo) if has_photo else None,
             ))
             db.session.commit()
-        return redirect(url_for("conversation", username=other.username))
+            sent = True
+        # If sending failed, keep the "About: <post>" context so the user can try again.
+        keep_post = post.id if (post and not sent) else None
+        return redirect(url_for("conversation", username=other.username, post=keep_post))
 
     # Only messages between these two people: nobody else can read this conversation.
     thread = (
@@ -391,10 +441,36 @@ def conversation(username):
         thread=thread,
         about_post=about_post,
         max_length=MAX_MESSAGE_LENGTH,
+        max_upload_mb=MAX_UPLOAD_MB,
     )
+
+
+@app.route("/messages/photo/<int:message_id>")
+@login_required
+def message_image(message_id):
+    """Send a message photo, but only to the sender or the recipient of that message."""
+    message = db.get_or_404(Message, message_id)
+    me = current_user()
+    if me.id not in (message.sender_id, message.recipient_id) or not message.image_filename:
+        abort(404)
+    response = send_from_directory(MESSAGE_UPLOAD_FOLDER, message.image_filename)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Cache-Control"] = "private, max-age=3600"
+    return response
+
+
+@app.errorhandler(413)
+def upload_too_large(error):
+    flash(f"That file is too big. Please choose a photo under {MAX_UPLOAD_MB} MB.", "danger")
+    # Go back to the page the upload came from (only if it's a page on this site).
+    referrer = urlparse(request.referrer or "")
+    back = None
+    if referrer.netloc == request.host and referrer.path.startswith("/"):
+        back = referrer.path + (f"?{referrer.query}" if referrer.query else "")
+    return redirect(back or url_for("index"))
 
 
 if __name__ == "__main__":
     with app.app_context():
-        db.create_all()
+        upgrade_database()
     app.run(host="0.0.0.0", debug=True)

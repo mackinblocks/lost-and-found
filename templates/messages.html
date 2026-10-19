@@ -20,6 +20,7 @@
             </div>
             <p class="convo-preview">
               {% if convo.last.sender_id == me.id %}<span class="convo-you">You:</span>{% endif %}
+              {% if convo.last.image_filename %}📷 {% if not convo.last.body %}Photo{% endif %}{% endif %}
               {{ convo.last.body[:90] }}{% if convo.last.body|length > 90 %}…{% endif %}
             </p>
           </div>

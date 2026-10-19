@@ -1,0 +1,9 @@
+# Python / virtual environment
+venv/
+__pycache__/
+*.pyc
+
+# Photos people upload while using the site (never commit these)
+static/uploads/
+# Private photos sent in messages
+instance/message_uploads/
