@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% from "_macros.html" import avatar, user_link, status_badge %}
+{% from "_icons.html" import icon %}
+{% block title %}Chat with {{ other.username }} – UC Lost & Found{% endblock %}
+{% block content %}
+{% set me = current_user() %}
+<div class="messages-page">
+  <a href="{{ url_for('inbox') }}" class="back-link">{{ icon("arrow-left", 16) }}All messages</a>
+
+  <div class="chat-card">
+    <div class="chat-header">
+      {{ user_link(other, "md") }}
+    </div>
+
+    {% if about_post %}
+    <div class="chat-about">
+      <span>About</span>
+      <a href="{{ url_for('view_post', post_id=about_post.id) }}">{{ status_badge(about_post) }}{{ about_post.title }}</a>
+    </div>
+    {% endif %}
+
+    <div class="chat-thread" id="chat-thread">
+      {% for message in thread %}
+        {% set mine = message.sender_id == me.id %}
+        <div class="bubble-row {% if mine %}mine{% endif %}">
+          {% if not mine %}{{ avatar(other) }}{% endif %}
+          <div class="bubble">
+            {% if message.post %}
+              <a class="bubble-ref" href="{{ url_for('view_post', post_id=message.post.id) }}">Re: {{ message.post.title }}</a>
+            {% endif %}
+            {% if message.image_filename %}
+              <a href="{{ url_for('message_image', message_id=message.id) }}" target="_blank" rel="noopener" class="bubble-image-link">
+                <img class="bubble-image" src="{{ url_for('message_image', message_id=message.id) }}"
+                     alt="Photo from {{ message.sender.username }}" />
+              </a>
+            {% endif %}
+            {% if message.body %}<p class="bubble-body">{{ message.body }}</p>{% endif %}
+            <span class="bubble-time">{{ message.timestamp | timeago }}</span>
+          </div>
+        </div>
+      {% else %}
+        <p class="chat-empty">No messages yet. Say hi to {{ other.username }}!</p>
+      {% endfor %}
+    </div>
+
+    <form method="POST" action="{{ url_for('conversation', username=other.username) }}"
+          class="chat-form" id="chat-form" enctype="multipart/form-data">
+      {% if about_post %}<input type="hidden" name="post_id" value="{{ about_post.id }}"/>{% endif %}
+
+      <div class="photo-preview" id="photo-preview" hidden>
+        <img id="photo-preview-img" alt="Selected photo" />
+        <span id="photo-preview-name" class="photo-preview-name"></span>
+        <button type="button" id="photo-remove" class="photo-remove" aria-label="Remove photo">{{ icon("x", 16) }}</button>
+      </div>
+
+      <div class="chat-input-row">
+        <label class="photo-button" title="Add a photo">
+          {{ icon("camera", 20) }}
+          <span class="visually-hidden">Add a photo</span>
+          <input type="file" name="image" id="photo-input" accept="image/png,image/jpeg,image/gif,image/webp" />
+        </label>
+        <label for="body" class="visually-hidden">Message to {{ other.username }}</label>
+        <textarea id="body" name="body" rows="2" maxlength="{{ max_length }}"
+          placeholder="{% if about_post %}Ask about “{{ about_post.title }}”…{% else %}Write a message…{% endif %}"></textarea>
+        <button type="submit" class="btn btn-primary btn-send">{{ icon("send", 16) }}<span>Send</span></button>
+      </div>
+    </form>
+    <p class="chat-hint">Photos (up to {{ max_upload_mb }} MB) are only visible to the two of you. Hand items back somewhere public on campus, like TUC. Ctrl+Enter sends.</p>
+  </div>
+</div>
+
+<script>
+  (function () {
+    // Start the conversation scrolled to the newest message,
+    // and again once photos have loaded (they make the conversation taller).
+    var thread = document.getElementById('chat-thread');
+    function scrollToNewest() { thread.scrollTop = thread.scrollHeight; }
+    scrollToNewest();
+    window.addEventListener('load', scrollToNewest);
+    thread.querySelectorAll('.bubble-image').forEach(function (img) {
+      if (!img.complete) img.addEventListener('load', scrollToNewest);
+    });
+
+    var form = document.getElementById('chat-form');
+    var box = document.getElementById('body');
+    var input = document.getElementById('photo-input');
+    var preview = document.getElementById('photo-preview');
+    var previewImg = document.getElementById('photo-preview-img');
+    var previewName = document.getElementById('photo-preview-name');
+    var removeBtn = document.getElementById('photo-remove');
+    var maxBytes = {{ max_upload_mb }} * 1024 * 1024;
+
+    function hasContent() {
+      return box.value.trim() !== '' || input.files.length > 0;
+    }
+
+    // Show a small preview of the chosen photo before sending.
+    input.addEventListener('change', function () {
+      var file = input.files[0];
+      if (!file) { preview.hidden = true; return; }
+      if (file.size > maxBytes) {
+        alert('That photo is too big. Please choose one under {{ max_upload_mb }} MB.');
+        input.value = '';
+        preview.hidden = true;
+        return;
+      }
+      previewImg.src = URL.createObjectURL(file);
+      previewName.textContent = file.name;
+      preview.hidden = false;
+    });
+
+    removeBtn.addEventListener('click', function () {
+      input.value = '';
+      preview.hidden = true;
+    });
+
+    // Don't send an empty message.
+    form.addEventListener('submit', function (e) {
+      if (!hasContent()) { e.preventDefault(); box.focus(); }
+    });
+
+    box.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && hasContent()) {
+        form.submit();
+      }
+    });
+  })();
+</script>
+{% endblock %}

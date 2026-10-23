@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "_macros.html" import avatar %}
+{% from "_icons.html" import icon %}
+{% block title %}Messages – UC Lost & Found{% endblock %}
+{% block content %}
+{% set me = current_user() %}
+<div class="messages-page">
+  <h1 class="page-title">Messages</h1>
+  <p class="page-subtitle">Only you and the other person can see a conversation.</p>
+
+  {% if conversations %}
+    <ul class="convo-list">
+      {% for convo in conversations %}
+      <li>
+        <a href="{{ url_for('conversation', username=convo.other.username) }}" class="convo-item {% if convo.unread %}unread{% endif %}">
+          {{ avatar(convo.other, "md") }}
+          <div class="convo-text">
+            <div class="convo-top">
+              <span class="user-name">{{ convo.other.username }}</span>
+              <span class="convo-time">{{ convo.last.timestamp | timeago }}</span>
+            </div>
+            <p class="convo-preview">
+              {% if convo.last.sender_id == me.id %}<span class="convo-you">You:</span>{% endif %}
+              {% if convo.last.image_filename %}{{ icon("camera", 14) }}{% if not convo.last.body %} Photo{% endif %}{% endif %}
+              {{ convo.last.body[:90] }}{% if convo.last.body|length > 90 %}…{% endif %}
+            </p>
+          </div>
+          {% if convo.unread %}<span class="unread-dot" aria-label="{{ convo.unread }} unread">{{ convo.unread }}</span>{% endif %}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="empty-state">
+      {{ icon("message", 32) }}
+      <p>No messages yet. Open an item on the board and use <strong>Message</strong> to contact whoever posted it.</p>
+      <a href="{{ url_for('index') }}" class="btn btn-dark">Browse items</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

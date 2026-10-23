@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>UC Lost & Found</title>
+  <title>{% block title %}UC Lost & Found{% endblock %}</title>
   <script>
     // Apply the saved theme (or the device setting) before the page paints, so there is no flash.
     (function () {
@@ -18,19 +18,55 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
 </head>
 <body>
-  <header>
+  {% from "_macros.html" import avatar %}
+  {% from "_icons.html" import icon %}
+  {% set me = current_user() %}
+  <header class="site-header">
     <div class="header-inner">
-      <div class="logo">
-        <span class="logo-icon">🐾</span>
-        <div>
-          <h1>Bearcats Lost & Found</h1>
-          <p>University of Cincinnati Community Board</p>
-        </div>
-      </div>
-      <div class="header-actions">
-        <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Switch to dark mode" title="Switch to dark mode">🌙</button>
-        <a href="{{ url_for('new_post') }}" class="btn btn-primary">+ New Post</a>
-      </div>
+      <a class="logo" href="{{ url_for('index') }}" aria-label="Bearcats Lost & Found home">
+        <span class="logo-mark">{{ icon("tag", 20) }}</span>
+        <span class="logo-text">
+          <span class="logo-name">Bearcats Lost &amp; Found</span>
+          <span class="logo-sub">University of Cincinnati</span>
+        </span>
+      </a>
+
+      <nav class="header-actions" aria-label="Account">
+        {% if me %}
+          {% set unread = unread_message_count() %}
+          <a href="{{ url_for('inbox') }}" class="icon-btn" title="Messages"
+             aria-label="Messages{% if unread %}, {{ unread }} unread{% endif %}">
+            {{ icon("message", 20) }}
+            {% if unread %}<span class="unread-dot">{{ unread }}</span>{% endif %}
+          </a>
+          <a href="{{ url_for('new_post') }}" class="btn btn-primary">{{ icon("plus", 18) }}<span>Post an item</span></a>
+
+          <details class="account-menu">
+            <summary aria-label="Account menu for {{ me.username }}">
+              {{ avatar(me, "md") }}
+              <span class="account-name">{{ me.username }}</span>
+              {{ icon("chevron-down", 16) }}
+            </summary>
+            <div class="menu-panel" role="menu">
+              <p class="menu-heading">Signed in as <strong>{{ me.username }}</strong></p>
+              <a role="menuitem" href="{{ url_for('profile', username=me.username) }}">{{ icon("user") }} Your profile</a>
+              <a role="menuitem" href="{{ url_for('inbox') }}">{{ icon("message") }} Messages{% if unread %} <span class="menu-count">{{ unread }}</span>{% endif %}</a>
+              <button role="menuitem" type="button" class="theme-toggle" data-theme-toggle>
+                <span class="when-light">{{ icon("moon") }} Dark mode</span>
+                <span class="when-dark">{{ icon("sun") }} Light mode</span>
+              </button>
+              <a role="menuitem" href="{{ url_for('logout') }}">{{ icon("logout") }} Log out</a>
+            </div>
+          </details>
+        {% else %}
+          <button type="button" class="icon-btn theme-toggle" data-theme-toggle aria-label="Switch light or dark mode" title="Switch light or dark mode">
+            <span class="when-light">{{ icon("moon", 20) }}</span>
+            <span class="when-dark">{{ icon("sun", 20) }}</span>
+          </button>
+          <a href="{{ url_for('login') }}" class="btn btn-quiet">Log in</a>
+          <a href="{{ url_for('register') }}" class="btn btn-primary">Sign up</a>
+        {% endif %}
+      </nav>
     </div>
   </header>
 
@@ -39,7 +75,7 @@
       {% if messages %}
         <div class="flash-messages">
           {% for category, message in messages %}
-            <div class="flash flash-{{ category }}">{{ message }}</div>
+            <div class="flash flash-{{ category }}" role="status">{{ message }}</div>
           {% endfor %}
         </div>
       {% endif %}
@@ -47,31 +83,32 @@
     {% block content %}{% endblock %}
   </main>
 
-  <footer>
-    <p>University of Cincinnati &mdash; Lost &amp; Found Message Board &mdash; For campus use only</p>
+  <footer class="site-footer">
+    <p>Bearcats Lost &amp; Found is a student project for the University of Cincinnati community.</p>
   </footer>
 
   <script>
     (function () {
       var root = document.documentElement;
-      var button = document.getElementById('theme-toggle');
-
-      function render() {
-        var dark = root.getAttribute('data-theme') === 'dark';
-        var label = dark ? 'Switch to light mode' : 'Switch to dark mode';
-        button.textContent = dark ? '☀️' : '🌙';
-        button.setAttribute('aria-label', label);
-        button.setAttribute('title', label);
-      }
-
-      button.addEventListener('click', function () {
-        var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        root.setAttribute('data-theme', next);
-        try { localStorage.setItem('theme', next); } catch (e) {}
-        render();
+      // Every light/dark button on the page flips the theme and remembers the choice.
+      document.querySelectorAll('[data-theme-toggle]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          root.setAttribute('data-theme', next);
+          try { localStorage.setItem('theme', next); } catch (e) {}
+        });
       });
 
-      render();
+      // Close the account menu when clicking outside it or pressing Escape.
+      var menu = document.querySelector('.account-menu');
+      if (menu) {
+        document.addEventListener('click', function (e) {
+          if (menu.open && !menu.contains(e.target)) menu.open = false;
+        });
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' && menu.open) { menu.open = false; menu.querySelector('summary').focus(); }
+        });
+      }
     })();
   </script>
 </body>

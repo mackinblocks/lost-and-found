@@ -1,0 +1,55 @@
+{# Reusable pieces. Import them with:  {% from "_macros.html" import avatar, user_link, post_card, status_badge %} #}
+{% from "_icons.html" import icon %}
+
+{# A colored circle with the user's first letter. Each username always gets the same color. #}
+{% macro avatar(user, size="sm") -%}
+  <span class="avatar avatar-{{ size }}" style="--avatar-bg: {{ avatar_color(user.username) }};" aria-hidden="true">{{ user.username[:1] | upper }}</span>
+{%- endmacro %}
+
+{# Avatar + username, linking to that user's profile page. #}
+{% macro user_link(user, size="sm") -%}
+  <a class="user-link" href="{{ url_for('profile', username=user.username) }}">
+    {{- avatar(user, size) -}}
+    <span class="user-name">{{ user.username }}</span>
+    {%- if current_user() and current_user().id == user.id %}<span class="you-tag">You</span>{% endif -%}
+  </a>
+{%- endmacro %}
+
+{# "Lost" / "Found" / "Returned" label. #}
+{% macro status_badge(post) -%}
+  {% if post.resolved %}
+    <span class="status status-returned">{{ icon("check", 14) }}Returned</span>
+  {% else %}
+    <span class="status status-{{ post.type }}">{{ post.type | capitalize }}</span>
+  {% endif %}
+{%- endmacro %}
+
+{# One card on the board. The whole card is a link, so the username here is plain text. #}
+{% macro post_card(post) -%}
+  <a href="{{ url_for('view_post', post_id=post.id) }}" class="post-card {% if post.resolved %}is-returned{% endif %}">
+    <div class="card-media">
+      {% if post.image_filename %}
+        <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" alt="" loading="lazy" />
+      {% else %}
+        <div class="card-placeholder card-placeholder-{{ post.type }}">{{ icon("package", 40) }}<span>No photo</span></div>
+      {% endif %}
+      <span class="card-status">{{ status_badge(post) }}</span>
+    </div>
+    <div class="card-body">
+      <h2 class="card-title">{{ post.title }}</h2>
+      <p class="card-desc">{{ post.description[:110] }}{% if post.description|length > 110 %}…{% endif %}</p>
+      <ul class="card-meta">
+        <li>{{ icon("pin", 15) }}<span>{{ post.location }}</span></li>
+        <li>{{ icon("calendar", 15) }}<span>{{ post.date | nice_date }}</span></li>
+      </ul>
+    </div>
+    {% if post.author %}
+    <div class="card-foot">
+      {{ avatar(post.author) }}
+      <span class="user-name">{{ post.author.username }}</span>
+      {% if current_user() and current_user().id == post.author.id %}<span class="you-tag">You</span>{% endif %}
+      <span class="card-time">{{ post.timestamp | timeago }}</span>
+    </div>
+    {% endif %}
+  </a>
+{%- endmacro %}
